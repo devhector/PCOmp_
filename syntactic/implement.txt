@@ -1,0 +1,246 @@
+
+? - zero ou um ocorrência;
+* - zero ou mais ocorrências;
++ - uma ou mais ocorrências;
+
+KARLOFF -> MAIN FUNC?
+MAIN -> "void" "main" "{" VARDECL SEQCOMANDOS "}"
+VARDECL -> VARDECL "newVar" TIPO TOKEN_id ";" | vazio
+TIPO -> "int" | "bool"
+SEQCOMANDOS -> SEQCOMANDOS COMANDO | vazio
+COMANDO -> TOKEN_id "=" EXP ";"
+| TOKEN_id "(" LISTAEXP? ")" ";"
+| "if" "(" EXP ")" "then" "{" SEQCOMANDOS "}" ";"
+| "while" "(" EXP ")" "{" SEQCOMANDOS "}" ";"
+| "repeat" "{" SEQCOMANDOS "}" "until" "(" EXP ")" ";"
+| "return" EXP ";"
+| "System.output" "(" EXP ")" ";"
+EXP -> "(" EXP OP EXP ")" | FATOR
+FATOR -> TOKEN_id | TOKEN_id "(" LISTAEXP? ")"
+| TOKEN_numliteral | "true" | "false"
+OP -> "+" | "-" | "*" | "/" | "&" | "|" | "<" | ">" | "=="
+LISTAEXP -> EXP | LISTAEXP "," EXP
+FUNC -> FUNC "func" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}"
+| "func" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}"
+LISTAARG -> TIPO TOKEN_id | LISTAARG "," TIPO TOKEN_id
+=====================================
+Convenções léxicas
+^^^^^^^^^^ ^^^^^^^
+TOKEN_id -> letra letraoudigito* finalsublinhado*
+TOKEN_numliteral -> digitos facao_opcional expoente_opcional
+onde:
+letra -> [a-zA-Z]
+digito -> [0-9]
+digitos -> digito+
+facao_opcional -> (.digitos)?
+expoente_opcional -> (E (+ | -)? digitos)?
+letraoudigito -> letra | digito
+finalsublinhado -> _letraoudigito+
+letra -> [a-zA-Z]
+digito -> [0-9]
+
+
+----
+
+[x] MAIN -> "void" "main" "{" VARDECL SEQCOMANDOS "}"
+[x] VARDECL -> VARDECL "newVar" TIPO TOKEN_id ";" | vazio
+---
+---
+[x] TIPO -> "int" | "bool"
+[x] SEQCOMANDOS -> COMANDO | vazio
+
+---
+[x] COMANDO -> TOKEN_id "=" EXP ";"
+[x] | TOKEN_id "(" LISTAEXP? ")" ";"
+[x] | "if" "(" EXP ")" "then" "{" SEQCOMANDOS "}" ";"
+[x] | "while" "(" EXP ")" "{" SEQCOMANDOS "}" ";"
+[x] | "repeat" "{" SEQCOMANDOS "}" "until" "(" EXP ")" ";"
+[x] | "return" EXP ";"
+[x] | "System.output" "(" EXP ")" ";"
+---
+[x] EXP -> "(" EXP OP EXP ")" | FATOR
+
+---
+[x] FATOR -> TOKEN_id | TOKEN_id "(" LISTAEXP? ")"
+[x] | TOKEN_numliteral | "true" | "false"
+[x] OP -> "+" | "-" | "*" | "/" | "&" | "|" | "<" | ">" | "=="
+---
+[x] LISTAEXP -> EXP | LISTAEXP "," EXP
+LISTAEXP -> EXP LSITAEXPL
+LISTAEXPL -> "," EXP LISTAEXPL | vazio
+---
+[x] FUNC -> FUNC "func" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}"
+[x] | "func" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}"
+
+FUNC -> "func" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}" FUNCL
+FUNCL -> "func" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}" FUNCL | vazio
+
+---
+[] LISTAARG -> TIPO TOKEN_id | LISTAARG "," TIPO TOKEN_id
+LISTAARG -> TIPO TOKEN_id LISTAARGL
+LISTAARGL -> "," TIPO TOKEN_id LISTAARGL | vazio
+
+---
+Aplicar eliminação da recursão à esquerda e fatoração nas seguintes gramáticas (quando
+necessário):
+
+(a)
+GRAMÁTICA ORIGINAL:
+E -> E + T | T
+T -> T * F | F
+F -> (E) | id
+
+Gramática Modificada (sem recursão à esquerda):
+
+E -> T E'
+E'-> + T E' | vazio
+T -> F T'
+T'-> *F T'| vazio
+F -> (E) | id
+
+
+(b) GRAMÁTICA ORIGINAL
+
+SEQ -> SEQ ; COM | COM
+COM -> id := EXP | id (EXP) | repeat SEQ until EXP
+EXP -> 0 | 1
+
+Gramática Modificada (sem recursão à esquerda e fatorada):
+
+SEQ  -> COM SEQ'
+SEQ' -> ; COM SEQ' | vazio
+COM  -> ID COM' | repeat SEQ until EXP
+COM' -> := EXP | (EXP)
+EXP  -> 0 | 1
+
+
+(c) GRAMÁTICA ORIGINAL
+
+CMD -> if EXP then CMD else CMD | if EXP then CMD
+EXP -> 0 | 1
+
+Gramática Modificada (fatorada):
+
+CMD  -> if EXP then CMD CMD'  
+CMD' -> else CMD | vazio
+EXP  -> 0 | 1
+
+
+
+(d) GRAMÁTICA ORIGINAL
+
+ListaDecl -> ListDecl ; Decl | Decl
+Decl      -> ListaId : DeclTipo
+ListaId   -> id | ListaId, id
+DeclTipo  -> Tipo id [num] | Tipo id
+Tipo      -> bool | char
+
+Gramática Modificada (sem recursão à esquerda e fatorada):
+
+ListaDecl  -> Decl ListaDecl'
+ListaDecl' -> ; Decl ListaDecl' | vazio
+Decl       -> ListaId : DeclTipo
+ListaId    -> id ListaId'
+ListaId'   -> , id ListaId'| vazio
+DeclTipo   -> Tipo id DeclTipo'
+DeclTipo   -> [num] | vazio
+Tipo       -> bool | char
+
+---
+EX: SIMPLES
+
+PARSER_BEGIN(Simple)
+import java.io.*;
+public class Simple {
+
+  public static void main(String args[]) throws ParseException,IOException {
+    
+ Simple parser = new Simple(new FileInputStream(args[0]));
+ parser.Simple();
+  }
+
+}
+
+PARSER_END(Simple)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  <MAIN: "main">
+| <ACHAVES: "{">
+| <FCHAVES: "}">
+| <APARENTESES:"(">
+| <FPARENTESES:")">
+| <PRINT: "print">
+| <ATRIB: ":=">
+| <PV: ";">
+}
+
+TOKEN :
+{
+  <NUM : (["0"-"9"])+>
+ |< ID: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"])*>
+
+}
+
+
+// SIMPLE -> "main" "{" COMANDOS  "}"
+
+void Simple () :
+{}
+{
+
+<MAIN> <ACHAVES> Comandos() <FCHAVES>
+<EOF> 
+
+}
+
+
+
+// COMANDOS -> COM ";"  COMANDOS'
+
+void Comandos () :
+{}
+{
+
+ Com() <PV> ComandosL()
+
+}
+
+// COMANDOS'->   COM ";" COMANDOS' | epsilon
+
+void ComandosL () :
+{}
+{
+
+ ( Com()  <PV>  ComandosL())?
+
+}
+
+
+
+// COM -> id ":=" EXP | "print" "(" EXP ")"
+
+void Com () :
+{}
+{
+
+  (<ID> <ATRIB> Exp()) | (<PRINT> <APARENTESES> Exp() <FPARENTESES>) 
+
+}
+
+
+// EXP -> num | id
+
+void Exp () :
+{}
+{
+    <NUM> | <ID>
+}

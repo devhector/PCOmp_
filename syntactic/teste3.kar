@@ -1,0 +1,15 @@
+void main{
+	newVar int bb_aa;
+	newVar bool y;
+	
+	bb_aa = 0;
+	y = true;
+
+	repeat{
+		if (((bb_aa + (bb_aa + 7)) == 240))
+		then{
+			y = false;
+		};
+		bb_aa = (bb_aa + 1);
+	}until(y);
+}

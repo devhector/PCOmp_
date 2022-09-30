@@ -1,0 +1,22 @@
+void main{
+    newVar int n;
+	newVar int x;
+	newVar bool q_s;
+
+	n = 0;
+	n = count(n, x);
+
+	q_s = false;
+	if ((n == 10))
+	then {
+		q_s = true;
+	};
+}
+
+func int count(int n, int x){
+    while((n < x)){
+      n = (n + 1);
+      System.output(n);
+    };
+    return n;
+}

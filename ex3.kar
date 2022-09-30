@@ -1,0 +1,20 @@
+void main {
+
+newVar int x;
+newVar int y;
+newVar int a;
+newVar int b;
+newVar int _maldo_nado;
+
+a = 3E12;
+b = 1E15;
+x = 10E+22;
+y = (10 + 20);
+
+if (( x < y ))
+then {
+  System.output(x);  
+};
+
+
+}

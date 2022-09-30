@@ -1,0 +1,16 @@
+void main{
+    newVar int n;	
+    n = 37;
+	count(n);
+}
+
+func int count(int n){
+	newVar int i;
+
+	i = 0;
+    while((i < n)){
+      n = (i + 1);
+      System.output(i);
+    };
+    return i;
+}

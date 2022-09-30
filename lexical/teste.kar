@@ -1,0 +1,9 @@
+void main{
+    newVar int narga_b;	
+    narga_b = 0;
+    while(narga_b < 42)
+    {
+    	System.output(narga_b);
+    	narga_b = (narga_b + 1);
+    }
+}

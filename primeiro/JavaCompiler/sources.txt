@@ -1,0 +1,6 @@
+./src/AnaliseLexica.java
+./src/ArvoreSintatica.java
+./src/MaquinaPilha.java
+./src/Parser.java
+./src/Compilador.java
+./src/CodeGen.java

@@ -1,0 +1,173 @@
+PARSER_BEGIN(Karloff)
+import java.io.*;
+public class Karloff {
+
+  public static void main(String args[]) throws ParseException,IOException {
+    
+ Karloff analisador = new Karloff(new FileInputStream(args[0]));
+ analisador.Karloff();
+  }
+
+}
+
+PARSER_END(Karloff)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  <MAIN: "main">
+| <ACHAVES: "{">
+| <FCHAVES: "}">
+| <VOID: "void">
+| <INT: "int">
+| <BOOL: "bool">
+| <VAR: "newVar">
+| <PV: ";">
+| <LPAR: "(">
+| <RPAR: ")">
+
+}
+
+TOKEN :
+{
+  <IF: "if">
+| <THEN: "then">
+| <WHILE: "while">
+| <REPEAT: "repeat">
+| <UNTIL: "until">
+| <RETURN: "return">
+| <OUTPUT: "System.output">
+| <FUNC: "func">
+| <TRUE: "true">
+| <FALSE: "false">
+}
+
+TOKEN :
+{
+  <NUM : (["0"-"9"])+("."(["0"-"9"])+)?("E"("+"|"-")?(["0"-"9"])+)?>
+ |< ID : ["a"-"z","A"-"Z"] (["a"-"z","A"-"Z","0"-"9"])* (("_") (["a"-"z","A"-"Z","0"-"9"])+)* >
+
+}
+
+TOKEN :
+{
+  <SUM: "+">
+| <SUB: "-">
+| <MUL: "*">
+| <DIV: "/">
+| <ATR: "=">
+| <EQ: "==">
+| <LESS: "<">
+| <GREATER: ">">
+| <OR: "|">
+| <AND: "&">
+| <SEPARATOR: ",">
+}
+
+void Karloff () :
+{}
+{
+ <VOID> <MAIN> <ACHAVES> vardecl() seqcomandos() <FCHAVES>
+ (func())?
+ <EOF>
+}
+
+void vardecl () :
+{}
+{
+	(<VAR> tipo() <ID> <PV>)*
+}
+
+void tipo () :
+{}
+{
+	<INT> | <BOOL>
+}
+
+void seqcomandos () :
+{}
+{
+	(comando())*
+}
+
+void comando() :
+{}
+{
+	<ID> comandol()
+	| <IF> <LPAR> exp() <RPAR> <THEN> <ACHAVES> seqcomandos() <FCHAVES> <PV>
+	| <WHILE> <LPAR> exp() <RPAR> <ACHAVES> seqcomandos() <FCHAVES> <PV>
+	| <REPEAT> <ACHAVES> seqcomandos() <FCHAVES> <UNTIL> <LPAR> exp() <RPAR> <PV>
+	| <RETURN> exp() <PV>
+	| <OUTPUT> <LPAR> exp() <RPAR> <PV>
+}
+
+void comandol() :
+{}
+{
+	<ATR> exp() <PV> | <LPAR> (listaexp())? <RPAR> <PV>
+}
+
+void exp () :
+{}
+{
+	<LPAR> exp() op() exp() <RPAR> | fator()
+}
+
+void fator () :
+{}
+{
+	<ID> fatorl()
+	| <NUM>
+	| <TRUE>
+	| <FALSE>
+}
+
+void fatorl() :
+{}
+{
+	(<LPAR> listaexp() <RPAR>)?
+}
+
+void op () :
+{}
+{
+	<SUM> | <SUB> | <MUL> | <DIV> | <EQ> | <LESS> | <GREATER> | <OR> | <AND>
+}
+
+void listaexp () :
+{}
+{
+	exp() listaexpl()
+}
+
+void listaexpl () :
+{}
+{
+	(<SEPARATOR> exp() listaexpl())?
+}
+
+void func () :
+{}
+{
+	(<FUNC> tipo() <ID> <LPAR> (listaarg())? <RPAR> <ACHAVES> vardecl() seqcomandos() <FCHAVES>)+
+}
+
+void listaarg () :
+{}
+{
+	tipo() <ID> listaargl()
+}
+
+void listaargl () :
+{}
+{
+	(<SEPARATOR> tipo() <ID> listaargl())?
+}
+
